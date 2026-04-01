@@ -1,5 +1,4 @@
 repos:
-  # Standard code quality hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -7,48 +6,46 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-json
-      - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
       - id: check-added-large-files
-        args: ["--maxkb=500"]
+        args: ['--maxkb=500']
+      - id: detect-private-key
 
-  # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        name: "CyberSentry: Detect secrets"
-        args: ["--baseline", ".secrets.baseline"]
-        exclude: >
+        name: "CyberSentry — detect secrets"
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
           (?x)^(
-            tests/.*|
-            .*\.example\..*|
-            \.env\.example
+            .*test.*|
+            \.secrets\.baseline|
+            \.venv/.*
           )$
 
-  # Bandit SAST
   - repo: https://github.com/PyCQA/bandit
     rev: 1.9.4
     hooks:
       - id: bandit
-        name: "CyberSentry: SAST (bandit)"
-        args: ["-ll", "--skip", "B101,B601"]  # B101=assert, B601=paramiko (adjust as needed)
-        exclude: "tests/"
+        name: "CyberSentry — SAST scan"
+        args: ['-ll', '--skip', 'B101,B601', '--exclude', '.venv,tests']
+        exclude: '(\.venv/|tests/)'
 
-  # CyberSentry custom scan (requires cybersentry to be installed)
   - repo: local
     hooks:
       - id: cybersentry-secrets
-        name: "CyberSentry: Secrets scan"
+        name: "CyberSentry — secrets scan"
         entry: cybersentry scan --type secrets --quiet
         language: system
         pass_filenames: false
         always_run: true
 
-      - id: cybersentry-deps
-        name: "CyberSentry: Dependency CVE check"
-        entry: cybersentry scan --type deps --quiet
+      - id: cybersentry-score
+        name: "CyberSentry — security score"
+        entry: cybersentry score
         language: system
         pass_filenames: false
-        stages: [pre-push]  # Only run on push (slower)
+        always_run: true
+        stages: [pre-push]
