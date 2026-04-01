@@ -158,9 +158,9 @@ pytest tests/ -v
 
 ## Roadmap
 
-**Phase 1 (current):** CLI + scanning + detection + explain/fix + pre-commit  
-**Phase 2:** VS Code extension + GitHub Action + custom rules + LLM fix suggestions  
-**Phase 3:** Real-time dashboard + learning mode + Cloudflare/NGINX integration  
+**Phase 1 (current):** CLI + scanning + detection + explain/fix + pre-commit
+**Phase 2:** VS Code extension + GitHub Action + custom rules + LLM fix suggestions
+**Phase 3:** Real-time dashboard + learning mode + Cloudflare/NGINX integration
 
 ---
 

@@ -24,9 +24,9 @@ other compilers.
 the Dialect class.
 
 4. The names of types within dialects are now important.   If a dialect-specific type
-is a subclass of an existing generic type and is only provided for bind/result behavior, 
-the current mixed case naming can remain, i.e. _PGNumeric for Numeric - in this case, 
-end users would never need to use _PGNumeric directly.   However, if a dialect-specific 
+is a subclass of an existing generic type and is only provided for bind/result behavior,
+the current mixed case naming can remain, i.e. _PGNumeric for Numeric - in this case,
+end users would never need to use _PGNumeric directly.   However, if a dialect-specific
 type is specifying a type *or* arguments that are not present generically, it should
 match the real name of the type on that backend, in uppercase.  E.g. postgresql.INET,
 mysql.ENUM, postgresql.ARRAY.
@@ -67,29 +67,29 @@ Or follow this handy flowchart:
                                                         (i.e. class BLOB(types.BLOB))
 
 
-Example 1.   pysqlite needs bind/result processing for the DateTime type in types.py, 
-which applies to all DateTimes and subclasses.   It's named _SLDateTime and 
+Example 1.   pysqlite needs bind/result processing for the DateTime type in types.py,
+which applies to all DateTimes and subclasses.   It's named _SLDateTime and
 subclasses types.DateTime.
 
 Example 2.  MS-SQL has a TIME type which takes a non-standard "precision" argument
-that is rendered within DDL.   So it's named TIME in the MS-SQL dialect's base.py, 
+that is rendered within DDL.   So it's named TIME in the MS-SQL dialect's base.py,
 and subclasses types.TIME.  Users can then say mssql.TIME(precision=10).
 
-Example 3.  MS-SQL dialects also need special bind/result processing for date 
-But its DATE type doesn't render DDL differently than that of a plain 
+Example 3.  MS-SQL dialects also need special bind/result processing for date
+But its DATE type doesn't render DDL differently than that of a plain
 DATE, i.e. it takes no special arguments.  Therefore we are just adding behavior
 to types.Date, so it's named _MSDate in the MS-SQL dialect's base.py, and subclasses
 types.Date.
 
 Example 4.  MySQL has a SET type, there's no analogue for this in types.py. So
-MySQL names it SET in the dialect's base.py, and it subclasses types.String, since 
+MySQL names it SET in the dialect's base.py, and it subclasses types.String, since
 it ultimately deals with strings.
 
 Example 5.  PostgreSQL has a DATETIME type.  The DBAPIs handle dates correctly,
 and no special arguments are used in PG's DDL beyond what types.py provides.
 PostgreSQL dialect therefore imports types.DATETIME into its base.py.
 
-Ideally one should be able to specify a schema using names imported completely from a 
+Ideally one should be able to specify a schema using names imported completely from a
 dialect, all matching the real name on that backend:
 
    from sqlalchemy.dialects.postgresql import base as pg
@@ -100,13 +100,13 @@ dialect, all matching the real name on that backend:
               Column('inetaddr', pg.INET)
    )
 
-where above, the INTEGER and VARCHAR types are ultimately from sqlalchemy.types, 
+where above, the INTEGER and VARCHAR types are ultimately from sqlalchemy.types,
 but the PG dialect makes them available in its own namespace.
 
 5. "colspecs" now is a dictionary of generic or uppercased types from sqlalchemy.types
 linked to types specified in the dialect.   Again, if a type in the dialect does not
 specify any special behavior for bind_processor() or result_processor() and does not
-indicate a special type only available in this database, it must be *removed* from the 
+indicate a special type only available in this database, it must be *removed* from the
 module and from this dictionary.
 
 6. "ischema_names" indicates string descriptions of types as returned from the database
@@ -114,31 +114,31 @@ linked to TypeEngine classes.
 
     a. The string name should be matched to the most specific type possible within
     sqlalchemy.types, unless there is no matching type within sqlalchemy.types in which
-    case it points to a dialect type.   *It doesn't matter* if the dialect has its 
+    case it points to a dialect type.   *It doesn't matter* if the dialect has its
     own subclass of that type with special bind/result behavior - reflect to the types.py
     UPPERCASE type as much as possible.   With very few exceptions, all types
     should reflect to an UPPERCASE type.
 
-    b. If the dialect contains a matching dialect-specific type that takes extra arguments 
+    b. If the dialect contains a matching dialect-specific type that takes extra arguments
     which the generic one does not, then point to the dialect-specific type.  E.g.
     mssql.VARCHAR takes a "collation" parameter which should be preserved.
 
 5. DDL, or what was formerly issued by "get_col_spec()", is now handled exclusively by
 a subclass of compiler.GenericTypeCompiler.
 
-    a. your TypeCompiler class will receive generic and uppercase types from 
+    a. your TypeCompiler class will receive generic and uppercase types from
     sqlalchemy.types.  Do not assume the presence of dialect-specific attributes on
-    these types. 
+    these types.
 
     b. the visit_UPPERCASE methods on GenericTypeCompiler should *not* be overridden with
-    methods that produce a different DDL name.   Uppercase types don't do any kind of 
+    methods that produce a different DDL name.   Uppercase types don't do any kind of
     "guessing" - if visit_TIMESTAMP is called, the DDL should render as TIMESTAMP in
     all cases, regardless of whether or not that type is legal on the backend database.
 
     c. the visit_UPPERCASE methods *should* be overridden with methods that add additional
     arguments and flags to those types.
 
-    d. the visit_lowercase methods are overridden to provide an interpretation of a generic 
+    d. the visit_lowercase methods are overridden to provide an interpretation of a generic
     type.  E.g.  visit_large_binary() might be overridden to say "return self.visit_BIT(type_)".
 
     e. visit_lowercase methods should *never* render strings directly - it should always

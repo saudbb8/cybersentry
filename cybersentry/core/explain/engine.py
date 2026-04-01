@@ -157,15 +157,15 @@ BASE_DIR = Path("/app/uploads").resolve()
 def safe_read(filename: str) -> str:
     # Resolve the full path (expands .., symlinks, etc.)
     target = (BASE_DIR / filename).resolve()
-    
+
     # Verify it's still within BASE_DIR
     if not str(target).startswith(str(BASE_DIR)):
         raise HTTPException(400, "Invalid file path")
-    
+
     # Verify it's a file (not a directory)
     if not target.is_file():
         raise HTTPException(404, "File not found")
-    
+
     return target.read_text()""",
             explanation="Path.resolve() expands all .. sequences and symlinks. Checking the prefix guarantees the file is within the intended directory.",
         ),
@@ -199,11 +199,11 @@ def is_safe_url(url: str) -> bool:
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         return False
-    
+
     # Domain allowlist
     if parsed.hostname not in ALLOWED_DOMAINS:
         return False
-    
+
     # Resolve and check for private IPs (DNS rebinding prevention)
     try:
         ip = ipaddress.ip_address(socket.gethostbyname(parsed.hostname))
@@ -212,7 +212,7 @@ def is_safe_url(url: str) -> bool:
                 return False
     except (socket.gaierror, ValueError):
         return False
-    
+
     return True
 
 url = request.query_params.get("webhook_url")
