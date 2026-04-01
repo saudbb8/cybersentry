@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# CyberSentry data
+.cybersentry/
+
+# Secrets — never commit these
+.env
+.env.local
+.env.production
+*.key
+*.pem
+
+# macOS
+.DS_Store
