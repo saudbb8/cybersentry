@@ -536,3 +536,134 @@ class ExplainEngine:
             difficulty="easy",
             prevalence="common",
         )
+
+
+# ── Add new explanations to _EXPLANATIONS ─────────────────────────────────────
+_EXPLANATIONS.update({
+    "XXE": {
+        "title": "XML External Entity Injection (XXE)",
+        "what_happened": (
+            "User-supplied XML contained a DOCTYPE declaration with an external entity. "
+            "This instructs the XML parser to fetch and embed content from an external source — "
+            "including local files, internal network resources, or remote URLs."
+        ),
+        "how_exploited": (
+            "An attacker sends XML like: <!DOCTYPE foo [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><foo>&xxe;</foo>. "
+            "The server's XML parser reads /etc/passwd and includes it in the response, "
+            "exposing the full system password file."
+        ),
+        "business_impact": (
+            "Local file disclosure (source code, credentials, /etc/passwd), "
+            "internal network port scanning via SSRF, remote code execution in some parsers, "
+            "denial of service via recursive entity expansion (Billion Laughs attack)."
+        ),
+        "owasp_link": "https://owasp.org/Top10/A03_2021-Injection/",
+        "cwe_link": "https://cwe.mitre.org/data/definitions/611.html",
+        "difficulty": "medium",
+        "prevalence": "moderate",
+        "learning_resources": [
+            "https://portswigger.net/web-security/xxe",
+            "https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html",
+        ],
+    },
+    "JWT": {
+        "title": "JWT Attack (Algorithm Confusion / None Attack)",
+        "what_happened": (
+            "A JSON Web Token was submitted with a manipulated algorithm header. "
+            "Common attacks include setting alg:none to bypass signature verification, "
+            "or switching from RS256 to HS256 to sign tokens with the public key."
+        ),
+        "how_exploited": (
+            "An attacker takes a valid JWT, decodes the header, changes 'alg' to 'none', "
+            "removes the signature, and sends it. A vulnerable server accepts it as valid "
+            "because it trusts the algorithm from the token itself — granting admin access."
+        ),
+        "business_impact": (
+            "Complete authentication bypass, privilege escalation to any user including admins, "
+            "account takeover, unauthorized API access."
+        ),
+        "owasp_link": "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "cwe_link": "https://cwe.mitre.org/data/definitions/347.html",
+        "difficulty": "medium",
+        "prevalence": "common",
+        "learning_resources": [
+            "https://portswigger.net/web-security/jwt",
+            "https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html",
+        ],
+    },
+    "LDAP": {
+        "title": "LDAP Injection",
+        "what_happened": (
+            "User input was embedded directly into an LDAP filter or Distinguished Name. "
+            "LDAP special characters like *, (, ), \\, NUL change the meaning of the query "
+            "the same way quote characters break SQL queries."
+        ),
+        "how_exploited": (
+            "An attacker enters username: *)(uid=*))(|(uid=* in a login form. "
+            "The LDAP filter becomes (&(uid=*)(uid=*))(|(uid=*)(password=anything)) "
+            "which matches every user — granting access without a valid password."
+        ),
+        "business_impact": (
+            "Authentication bypass, unauthorized access to directory data, "
+            "exposure of all user accounts, passwords, and group memberships."
+        ),
+        "owasp_link": "https://owasp.org/Top10/A03_2021-Injection/",
+        "cwe_link": "https://cwe.mitre.org/data/definitions/90.html",
+        "difficulty": "medium",
+        "prevalence": "moderate",
+        "learning_resources": [
+            "https://cheatsheetseries.owasp.org/cheatsheets/LDAP_Injection_Prevention_Cheat_Sheet.html",
+        ],
+    },
+    "GQL": {
+        "title": "GraphQL Injection / Abuse",
+        "what_happened": (
+            "A GraphQL endpoint was queried with introspection queries, deeply nested queries, "
+            "or injected SQL/NoSQL operators inside GraphQL arguments. "
+            "GraphQL doesn't automatically protect against injection — it just changes the transport format."
+        ),
+        "how_exploited": (
+            "An attacker sends {__schema{types{name}}} to enumerate all types and fields. "
+            "Then uses that knowledge to craft targeted queries that extract sensitive data. "
+            "Or sends deeply nested queries that cause exponential server load (DoS)."
+        ),
+        "business_impact": (
+            "Full API schema exposure, targeted data extraction, "
+            "denial of service via query complexity attacks, "
+            "SQL/NoSQL injection through GraphQL resolver arguments."
+        ),
+        "owasp_link": "https://owasp.org/Top10/A03_2021-Injection/",
+        "cwe_link": "https://cwe.mitre.org/data/definitions/200.html",
+        "difficulty": "medium",
+        "prevalence": "common",
+        "learning_resources": [
+            "https://portswigger.net/web-security/graphql",
+            "https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html",
+        ],
+    },
+    "NOSQL": {
+        "title": "NoSQL Injection",
+        "what_happened": (
+            "User input containing MongoDB operators ($where, $gt, $ne, $regex) was passed "
+            "directly into a NoSQL query. Unlike SQL injection, NoSQL injection manipulates "
+            "JSON query objects rather than SQL strings."
+        ),
+        "how_exploited": (
+            "An attacker sends username[$ne]=invalid&password[$ne]=invalid as POST body. "
+            "MongoDB interprets this as: find users where username != 'invalid' AND password != 'invalid' "
+            "which returns all users — bypassing authentication entirely."
+        ),
+        "business_impact": (
+            "Authentication bypass, unauthorized data access, "
+            "full database dump, account takeover."
+        ),
+        "owasp_link": "https://owasp.org/Top10/A03_2021-Injection/",
+        "cwe_link": "https://cwe.mitre.org/data/definitions/943.html",
+        "difficulty": "easy",
+        "prevalence": "common",
+        "learning_resources": [
+            "https://portswigger.net/web-security/nosql-injection",
+            "https://cheatsheetseries.owasp.org/cheatsheets/Injection_Prevention_Cheat_Sheet.html",
+        ],
+    },
+})

@@ -1,0 +1,7 @@
+{
+  "cybersentry.enabled": true,
+  "cybersentry.scanOnSave": true,
+  "cybersentry.pythonPath": "/Users/bbsaud/Documents/cybersentry/.venv/bin/python3",
+  "cybersentry.severityThreshold": "medium",
+  "cybersentry.showStatusBar": true
+}
